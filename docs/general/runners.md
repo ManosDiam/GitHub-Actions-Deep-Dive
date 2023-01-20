@@ -73,3 +73,5 @@ In this example, the test job will not start until the build job is completed.
 ## Summary
 
 In conclusion, GitHub Actions runners are an essential component of a GitHub Actions workflow, providing the environment and resources needed to execute the jobs and steps defined in the workflow file. Whether you choose to use self-hosted or GitHub-hosted runners, you should carefully consider the requirements of your workflow and choose the runner that best fits your needs.
+
+**Related repo:** [GitHub-Actions-Deep-Dive](https://github.com/christosgalano/GitHub-Actions-Deep-Dive)
