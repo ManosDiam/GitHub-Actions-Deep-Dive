@@ -2,7 +2,7 @@
 
 ## General
 
-As we have already mentioned GitHub Actions is a powerful automation tool that allows developers to create custom workflows for their projects. These workflows, or "actions," can be used to automate a wide variety of tasks, such as building and testing code, deploying code to production, and more. In this blog post, we will take a detailed look at what actions are and how to create your own using an example of building a python application in a Docker container.
+As we have already mentioned, GitHub Actions is a powerful automation tool that allows developers to create custom workflows for their projects. These workflows, or "actions", can be used to automate a wide variety of tasks, such as building and testing code, deploying code to production, and more. In this blog post, we will take a detailed look at what actions are and how to create your own using an example of a custom action that i've written and use regularly. The name of the action is `create-update-label` and its purpose is to update an issue label (or create one if one does not exist) in every repository of a user.
 
 ## What are GitHub Actions?
 
@@ -10,87 +10,141 @@ In GitHub, actions are individual, reusable pieces of code that can be run in a 
 
 Actions can be built and shared by the community, and also can be built by yourself. To create your own action, you will first need to create a new repository in GitHub. This repository will contain the code for your action, as well as any necessary configuration files. Once your repository is created, you can start writing your action.
 
+You can build Docker containers, JavaScript, and composite actions. Actions require a metadata file to define the inputs, outputs, and main entrypoint for your action. The metadata filename must be either `action.yml` or `action.yaml`.
+
 ## Components of an Action
 
 There are two main components to an action: the action.yml file and the code file. The action.yml file is a configuration file that contains information about the action, such as its name, inputs, and outputs. The code file is where the actual code for the action is located.
 
-Here's an example of a simple action that builds a Python application in a Docker container:
+Here's the action.yaml for `create-update-label`:
 
 ```yaml
-name: "Build Python Application in Docker"
-description: "This action builds a Python application in a Docker container."
+name: "Create/Update Label"
+author: "Christos Galanopoulos"
+description: "Create or update a label in all of the user's repositories"
 inputs:
-  path:
-    description: "The path to the Python application."
+  name:
+    description: "Specify label name"
     required: true
-  image:
-    description: "The Docker image to use for building the application"
+  color:
+    description: "Specify label color"
     required: true
-outputs:
-  build_status:
-    description: "The build status of the application."
+  description:
+    description: "Specify label description"
+    required: true
+  token:
+    description: "Specify GitHub Personal Access Token"
+    required: true
+branding:
+  icon: edit-2
+  color: gray-dark
 runs:
-  using: "docker"
-  main: "entrypoint.sh"
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        ${{ github.action_path }}/create_update_label.sh \
+          -n ${{ inputs.name }} \
+          -c ${{ inputs.color }} \
+          -d ${{ inputs.description }} \
+          -a ${{ inputs.token }}
 ```
 
-In this example, the action is named "Build Python Application in Docker" and it has two inputs, path, which is the path to the Python application and image which is the Docker image to use for building the application. The action also has a single output, build_status, which is the build status of the application. The action is set to run using Docker and the main file is entrypoint.sh.
+In this example, the action is named "Create/Update Label" and it has four inputs:
 
-The code for this action is located in the entrypoint.sh file, which might look something like this:
+- `name`: which is the label's name
+- `color`: which is the color that is going to be used for the label
+- `description`: which is the label's description
+- `token`: which is a GitHub Personal Access Token with the necessary permissions (specifically you need **Read access to code and metadata** and **Read and Write access to issues** on a scope that includes all repositories to which you want to add the label)
+
+The action is `composite` which allows you to package multiple actions together into a single action, making it easy to reuse and share those actions across multiple workflows.
+
+The code for this action is located in the `create_update_label.sh` file, which looks something like this:
 
 ```bash
-#!/bin/sh
+# Create a label
+function create_label() {
+    curl -s \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $api_token" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    https://api.github.com/repos/$repo/labels \
+    -d "{\"name\": \"$name\", \"description\": \"$description\" , \"color\": \"$color\"}"
+}
 
-set -e
+# Update a label, if it does not exist create it
+function update_label() {
+    status_code=$(curl -s \
+        -X PATCH \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer $api_token" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/repos/$repo/labels/$name \
+        -d "{\"name\": \"$name\", \"description\": \"$description\" , \"color\": \"$color\"}" \
+        --write-out '%{http_code}' \
+    --output /dev/null)
+    if [ "$status_code" -eq 404 ]; then
+        create_label
+        printf "Successfully created $name label since in $repo\n"
+    else
+        printf "Successfully updated $name label in $repo\n"
+    fi
+}
 
-echo "Building Python application in Docker container"
+# Parse and validate parameters
+parse_params "$@"
+validate_params
 
-docker build -t $IMAGE_NAME .
+# Fetch all repositories and keep only their full names (user/repo)
+repos=$(curl -s \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer $api_token" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+https://api.github.com/user/repos | jq -r '.[].full_name')
 
-echo "Build completed successfully."
-
-return { build_status: "success" }
+# Update the specified label in every repository.
+# If it does not exist then create it.
+for repo in $repos
+do
+    update_label
+done
 ```
 
-This code uses the Docker command line to build the image using the Dockerfile in the application path and also using the image name provided as input. If the build is successful, the action will return a build_status of "success." If the build fails, the action will return a build_status of "failure."
+The whole script can be found [**here**](https://github.com/christosgalano/Workflows-Actions-Library/blob/main/.github/actions/create-update-label/create_update_label.sh).
 
 ## Using Actions in a Workflow
 
-Once you have created your action, you can use it in a workflow. A workflow is a series of actions that are run in a specific order. Here's an example of a workflow that uses the "Build Python Application in Docker" action:
+Once you have created your action, you can use it in a workflow. As you have learned by now, a workflow is a series of actions that are run in a specific order. Here's an example of a workflow that uses the `create-update-label`:
 
 ```yaml
-name: Build and Deploy
+name: create-update-label
 on:
   push:
     branches:
-      - main
+    - main
 
 jobs:
-  build:
+  create-update-label:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
-    - name: Build Application
-      uses: ./ #path to your action
-      with:
-        path: 'path/to/my/app'
-        image: 'my_image_name'
-
-    - name: Deploy Application
-      run: |
-        # commands to deploy the application
-        # e.g. `docker push` or `kubectl apply`
+      - uses: christosgalano/Workflows-Actions-Library/.github/actions/create-update-label@main
+        with:
+          name: demo
+          color: 0075ca  # in hex, without the '#'
+          description: "A demo label"
+          token: ${{ secrets.GITHUB_PAT }}
 ```
 
-In this example, the workflow is named "Build and Deploy" and it is triggered by a push to the main branch. The workflow contains a single job called "build" that runs on the latest version of Ubuntu. The job has three steps:
+In this example, the workflow is named "create-update-label" and it is triggered by a push to the main branch. The workflow contains a single job called "create-update-label" that runs on the latest version of Ubuntu. The job has only one step:
 
-1. Check out the code using the actions/checkout action
-2. Build the application using the custom action ./ (path to your action)
-3. Deploy the application using your custom command (e.g. docker push or kubectl apply)
+1. Use the `create-update-label` action
 
-You can add additional steps to the job, such as running tests, or you can add additional jobs for different stages of the pipeline, such as "test" and "deploy." And also you can use the output of your custom action as input for another action.
+## Summary
 
-With GitHub Actions, you have the flexibility to create custom workflows that fit the needs of your project. Whether you're building a simple application or a complex microservices architecture, GitHub Actions can help you automate your development pipeline and streamline your workflow.
+To summarize, GitHub Actions allows users to create and reuse their own actions in their workflows. They can be written in any language and run on any operating system, and they can be used to perform a variety of tasks such as building, deploying code, running tests, and sending notifications. They can be stored in a separate repository, shared and reused across multiple projects and teams, and also versioned to ensure they are tested and working correctly before they are used in production.
+
+**Related repositories**:
+
+- [GitHub-Actions-Deep-Dive](https://github.com/christosgalano/GitHub-Actions-Deep-Dive)
+- [Workflows-Actions-Library](https://github.com/christosgalano/Workflows-Actions-Library)

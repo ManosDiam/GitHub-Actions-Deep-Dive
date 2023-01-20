@@ -10,7 +10,7 @@ There are two types of runners:
 
 - **Self-hosted runners**: These are runners that you set up and manage on your own infrastructure. This allows you to have full control over the environment in which your jobs are executed, and you can use specialized hardware or software that may not be available on the GitHub-hosted runners.
 
-- **GitHub-hosted runners**: These are runners that are provided and managed by GitHub. They are available in multiple operating systems, and they provide a variety of environments to run your jobs. These runners are free to use for public repositories, and for private repositories you can use them for free for a certain amount of minutes per month.
+- **GitHub-hosted runners**: These are runners that are provided and managed by GitHub. They are available on multiple operating systems, and they provide a variety of environments to run your jobs. These runners are free to use for public repositories, and for private repositories, you can use them for free for a certain number of minutes per month.
 
 ## Examples
 
@@ -35,7 +35,7 @@ jobs:
 
 In this example, the job is set to run on a self-hosted runner named "my-runner".
 
-You can also specify a matrix of runners to run the job on multiple runners:
+To run the job on multiple runners, you can also specify a matrix of runners:
 
 ```yaml
 jobs:
@@ -46,11 +46,11 @@ jobs:
       - macos-latest
 ```
 
-In this example, the job is set to run on the latest version of Windows, Ubuntu, and macOS.
+In this example, the job is set to run on the latest versions of Windows, Ubuntu, and macOS.
 
 It is important to note that the choice of runner will depend on the specific requirements of your workflow, such as the operating system, software dependencies, and hardware resources needed.
 
-Additionally, you can use the needs keyword to specify dependencies between jobs. For example, you can use it to specify that a job depends on another job to be completed before it can start:
+Additionally, you can use the needs keyword to specify dependencies between jobs. For example, you can use it to specify that a job depends on another job being completed before it can start:
 
 ```yaml
 jobs:
