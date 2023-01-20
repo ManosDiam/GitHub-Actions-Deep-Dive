@@ -1,5 +1,4 @@
 name: test-strategy-matrix
-
 on:
   workflow_dispatch:
 
@@ -11,7 +10,7 @@ jobs:
         shell: bash
 
     strategy:
-      max-parallel: 5 # we have 27 matrix-jobs in total, but we only allow 5 to run simultaneously
+      max-parallel: 5 # we have 27 (3x3x3) matrix-jobs in total, but we only allow 5 to run simultaneously
       fail-fast: false # if one of the matrix-jobs fails, the others should not be cancelled
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
