@@ -21,7 +21,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - shell: bash
+      - name: Print info
         run: |
           echo "OS:" ${{ matrix.os }}
           echo "Version:" ${{ matrix.version }}
