@@ -11,7 +11,7 @@ jobs:
         shell: bash
 
     strategy:
-      max-parallel: 4 # we have 9 matrix-jobs in total, but we only allow 4 to run simultaneously
+      max-parallel: 5 # we have 27 matrix-jobs in total, but we only allow 5 to run simultaneously
       fail-fast: false # if one of the matrix-jobs fails, the others should not be cancelled
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
