@@ -4,7 +4,7 @@ on:
 
 jobs:
   strategy-matrix:
-    # specify bash as default shell because windows
+    # specify bash as default shell on all os
     defaults:
       run:
         shell: bash

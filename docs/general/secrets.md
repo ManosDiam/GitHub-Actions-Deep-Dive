@@ -12,9 +12,9 @@ It's also worth noting that GitHub Secrets can also be used to store sensitive d
 
 Another important aspect of GitHub Secrets is that they are scoped to a repository, so they can only be accessed by workflows that run in the same repository. This means that if you have multiple workflows that need to access the same secret, you don't have to create a separate secret for each workflow.
 
-## Usage
+## Example
 
-The example which we'll go over can be found [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/secrets.yaml):
+The example we'll look at is available [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/secrets.yaml):
 
 ```yaml
 name: azure-account-show
