@@ -4,61 +4,62 @@
 
 GitHub Actions allows you to optimize the execution time of your workflows by using the `concurrency` keyword. This keyword can be used at the workflow scope, or within a specific job, to specify how many actions can run simultaneously. In this blog post, we will explore the use of the `concurrency` keyword in GitHub Actions and provide some examples to make it clearer.
 
-## Workflow scope
+## Example
 
-At the workflow scope, the `concurrency` keyword can be used to set a maximum number of concurrent actions that can run across all jobs in the workflow. For example:
-
-```yaml
-name: Test
-on: push
-concurrency: 4
-
-jobs:
-  test-python:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Run Python tests
-      run: python -m unittest discover
-  test-javascript:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Run JavaScript tests
-      run: jest
-```
-
-In this example, the maximum number of concurrent actions that can run across all jobs is 4. This means that at most 4 jobs can run at the same time.
-
-In addition, you can also use the `concurrency` keyword at the workflow scope with groups, which allows you to specify the maximum number of concurrent actions that can run within a group of jobs. For example:
+The example which we'll go over can be found [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/concurreny.yaml)
 
 ```yaml
-name: Test
-on: push
+name: concurrency
+on:
+  workflow_dispatch:
 
-workflow_dispatch:
-  concurrency:
-    groups:
-      tests: 2
+concurrency:
+  group: hello-world-${{ github.ref }} # since we use workflow_dispatch ${{ github.ref }} will be the branch from which the workflow is executed
+  cancel-in-progress: false # cancel any currently running job or workflow in the same concurrency group and proceed with the new one
 
 jobs:
-  test-python:
+  hello-world-1:
     runs-on: ubuntu-latest
-    group: tests
+    concurrency: hello-world # same group with hello-world-2
     steps:
-    - name: Run Python tests
-      run: python -m unittest discover
-  
-  test-javascript:
+      - uses: actions/checkout@v3
+      - run: |
+          echo "Hello world 1!"
+          sleep 5
+          echo "Hello world 1 again!"
+
+  hello-world-2:
     runs-on: ubuntu-latest
-    group: tests
+    concurrency: hello-world # same group with hello-world-1
     steps:
-    - name: Run JavaScript tests
-      run: jest
-  
-  build:
+      - uses: actions/checkout@v3
+      - run: |
+          echo "Hello world 2!"
+          sleep 5
+          echo "Hello world 2 again!"
+
+  hello-world-3:
     runs-on: ubuntu-latest
     steps:
-    - name: Build
-      run: make build
+      - uses: actions/checkout@v3
+      - run: |
+          echo "Hello world 3!"
+          sleep 5
+          echo "Hello world 3 again, no waiting here!"
+
 ```
 
-Here, the workflow runs on every push to the repository and the build job runs separately. We also group the test-python and test-javascript job under the same group tests. This allows you to specify a concurrency limit of 2 for the entire group of tests jobs, meaning that at most 2 tests jobs can run at the same time. This can be useful when you have a large number of tests to run and want to limit the number that run concurrently to avoid overloading the system.
+Here, the workflow is triggered manually. It has 3 jobs, which simply print a message sleep for 5 seconds and then print another message.
+
+Let's first analyze the `concurrency` keyword on a job scope. We can see that both the `hello-world-1` and the `hello-world-2` belong in the same concurrency group which is called `hello-world`. So, when we trigger the workflow we expect two jobs to run simultaneously one of which will be `hello-world-3` since it does not belong to any concurrency group and does need to wait for another to job to finish. A possible sequence of execution is the following one:
+
+![concurrency-job-scope](../../images/concurrency-job-scope.png)
+
+Now it's time to understand the `concurrency` keyword on a workflow scope. The above workflow belongs to a concurrency group named `hello-world-${{ github.ref }}`. The option `cancel-in-progress` gives someone the ability to cancel all on-going jobs and workflows that belong in the specified group and only run the currently triggered one.
+
+This is an example output with `cancel-in-progress: false`:
+
+![concurrency-workflow-scope-no-cancel](../../images/concurrency-workflow-scope-no-cancel.png)
+
+And this is an example output with `cancel-in-progress: true`:
+

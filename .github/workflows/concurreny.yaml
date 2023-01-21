@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: hello-world-${{ github.ref }}
-  cancel-in-progress: false # cancel any currently running job or workflow in the same concurrency group and proceed with the new one
+  group: hello-world-${{ github.ref }} # since we use workflow_dispatch ${{ github.ref }} will be the branch from which the workflow is executed
+  cancel-in-progress: true # cancel any currently running job or workflow in the same concurrency group and proceed with the new one
 
 jobs:
   hello-world-1:
