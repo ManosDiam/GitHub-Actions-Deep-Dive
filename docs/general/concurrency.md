@@ -6,7 +6,7 @@ GitHub Actions allows you to optimize the execution time of your workflows by us
 
 ## Example
 
-The example we'll look at can be found [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/concurreny.yaml)
+The example we'll look at can be found [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/concurreny.yaml):
 
 ```yaml
 name: concurrency
