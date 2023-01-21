@@ -14,8 +14,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: hello-world-${{ github.ref }} # since we use workflow_dispatch ${{ github.ref }} will be the branch from which the workflow is executed
-  cancel-in-progress: false # cancel any currently running job or workflow in the same concurrency group and proceed with the new one
+  group: hello-world-${{ github.ref }
+  cancel-in-progress: false
 
 jobs:
   hello-world-1:
@@ -63,3 +63,6 @@ This is an example output with `cancel-in-progress: false`:
 
 And this is an example output with `cancel-in-progress: true`:
 
+![concurrency-workflow-scope-with-cancel](../../images/concurrency-workflow-scope-with-cancel.png)
+
+## Summary

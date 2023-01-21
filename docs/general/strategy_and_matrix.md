@@ -31,10 +31,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Test
-      run: make test
+      run: echo test
 ```
 
-In this example, the `strategy` keyword is used to define a parallel matrix of test combinations. The `matrix` keyword is used to specify that the workflow should run on three different operating systems (ubuntu-latest, windows-latest, and macos-latest) and three different versions of Node.js (8, 10, and 12). This means that the workflow will run a total of 9 test combinations in parallel, rather than sequentially.
+In this example, the `strategy` keyword is used to define a parallel matrix of test combinations. The `matrix` keyword is used to specify that the workflow should run on three different operating systems (ubuntu-latest, windows-latest, and macos-latest) and three different versions of Node.js (8, 10, and 12). This means that the workflow will run a total of 9 (3x3) test combinations in parallel, rather than sequentially.
 
 It's also possible to define parallel workflows for multiple branches. For example, if you have a workflow that runs tests on multiple branches, you can run the tests in parallel on each branch in the following way:
 
@@ -57,7 +57,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Test
-      run: make test
+      run: echo test
 ```
 
 Here, the `strategy` keyword is used to run the tests in parallel on the main, dev, and feature/* branches. This means that the workflow will run a total of 9 test combinations in parallel on each branch, rather than sequentially.
@@ -76,7 +76,7 @@ matrix:
   dependency: [1.0, 2.0, 3.0]
 ```
 
-Here, the matrix specifies that the workflow should run on three different operating systems (ubuntu-latest, windows-latest, and macos-latest), three different versions of Node.js (8, 10, and 12), three different browsers (chrome, firefox, safari) and three different versions of a dependency (1.0, 2.0, 3.0). This means that the workflow will run a total of 81 test combinations in parallel, rather than sequentially.
+Here, the matrix specifies that the workflow should run on three different operating systems (ubuntu-latest, windows-latest, and macos-latest), three different versions of Node.js (8, 10, and 12), three different browsers (chrome, firefox, safari) and three different versions of a dependency (1.0, 2.0, 3.0). This means that the workflow will run a total of 81 (3^4) test combinations in parallel, rather than sequentially.
 
 Using the `matrix` keyword in this way can greatly improve the reliability of your workflow, as it allows you to test against a wide range of inputs and identify any potential issues before they are released to production.
 

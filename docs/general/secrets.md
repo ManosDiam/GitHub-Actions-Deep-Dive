@@ -14,7 +14,7 @@ Another important aspect of GitHub Secrets is that they are scoped to a reposito
 
 ## Usage
 
-Here's an example of how you can reference a secret in a workflow:
+The example which we'll go over can be found [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/secrets.yaml):
 
 ```yaml
 name: azure-account-show
