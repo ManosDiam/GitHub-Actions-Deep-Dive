@@ -1,9 +1,9 @@
-name: test-strategy-matrix
+name: strategy-matrix
 on:
   workflow_dispatch:
 
 jobs:
-  test-strategy-matrix:
+  strategy-matrix:
     # specify bash as default shell because windows
     defaults:
       run:
