@@ -2,7 +2,7 @@
 
 ## General
 
-GitHub Actions is a powerful tool for automating tasks and workflows within GitHub. One of the key features of GitHub Actions is the ability to authenticate and authorize actions using GitHub Tokens, such as the GITHUB_TOKEN. Additionally, GitHub Actions also allows repository owners to fine-tune the access that workflow jobs have to resources within a repository using the permissions keyword.
+One of the key features of GitHub Actions is the ability to authenticate and authorize actions using GitHub Tokens, such as the GITHUB_TOKEN. Additionally, GitHub Actions also allows repository owners to fine-tune the access that workflow jobs have using the `permissions` keyword. In this blog post, we will take a detailed look at how someone can have granular control over the actions that their workflows take.
 
 ## GITHUB_TOKEN
 
@@ -20,7 +20,7 @@ You can also set the default permissions for your repository by choosing one of 
 - **Read/write permissions**: Workflows have read and write permissions in the repository for all scopes.
 - **Read repository contents permission**: Workflows have read permissions in the repository for the contents scope only.
 
-I recommend that you select the second option following best security practices and if you need additional permissions, you can specify them in the workflow yaml as we will see next.
+I recommend that you select the second option, following best security practices, and if you need additional permissions, you can specify them in the workflow yaml, as we will see next.
 
 ## Permissions
 
@@ -57,10 +57,10 @@ permissions: {}
 
 ### Examples
 
-In the following example, we set read-all permissions for all the jobs in a workflow. We also override that in `job-3` where we disable all permissions:
+The example we'll look at is available [**here**](https://github.com/christosgalano/GitHub-Actions-Deep-Dive/blob/main/.github/workflows/permissions.yaml):
 
 ```yaml
-name: Permissions
+name: permissions
 
 on:
   workflow_dispatch:
@@ -82,14 +82,19 @@ jobs:
           echo "Test Job 2"
   job-3:
     runs-on: ubuntu-latest
-    permissions: {} # applies to only this job
+    permissions: {} # applies to only this job, overrides the workflow-scoped value
     steps:
       - uses: actions/checkout@v3
       - run: |
           echo "Test Job 3"
-
 ```
+
+In the above example, we set read-all permission for all the jobs in a workflow. We also override that value in `job-3`, where we disable all permissions and so we expect that this job will fail since it can not complete the action of checking out the repository.
+
+![permissions](../../images/permissions.png)
 
 ## Summary
 
-In conclusion, GITHUB_TOKEN and the permissions keyword are powerful tools in GitHub Actions that allow repository owners to authenticate and authorize actions, and fine-tune the access that workflow jobs have to resources within a repository. It is important to understand the scopes and permissions associated with the GITHUB_TOKEN and to use it in a secure way. Additionally, it is important to consider the permissions keyword as a way to control access to resources within a repository and to use it in combination with other access controls for a more granular control of the access.
+In conclusion, the combination of `GITHUB_TOKEN` and `permissions` is a powerful tool that allows the fine-tuned access of workflow jobs. When assigning permissions, always remember to follow security best practices.
+
+**Related repository:** [GitHub-Actions-Deep-Dive](https://github.com/christosgalano/GitHub-Actions-Deep-Dive)
