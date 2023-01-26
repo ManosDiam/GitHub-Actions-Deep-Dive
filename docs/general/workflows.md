@@ -62,7 +62,7 @@ jobs:
     steps:
     - name: Test
       run: make test
-  test:
+  deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Deploy
