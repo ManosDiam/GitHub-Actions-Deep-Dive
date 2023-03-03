@@ -24,5 +24,5 @@ GitHub Actions is an essential tool for any software development team. It's a hi
 
 ## Resources
 
-- **Related repository:** [GitHub-Actions-Deep-Dive](https://github.com/christosgalano/GitHub-Actions-Deep-Dive)
+- **Related blog post:** [GitHub Actions - Introduction](https://christosgalano.github.io/github/github-actions-introduction/)
 - **Related documentation:** [Understanding GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)
